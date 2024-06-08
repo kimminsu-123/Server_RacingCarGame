@@ -1,0 +1,7 @@
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/bin/Debug/RacingGameOperationServer.exe.config
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/bin/Debug/RacingGameOperationServer.exe
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/bin/Debug/RacingGameOperationServer.pdb
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.csproj.AssemblyReference.cache
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.csproj.CoreCompileInputs.cache
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.exe
+/Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.pdb

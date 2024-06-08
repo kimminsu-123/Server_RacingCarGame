@@ -10,5 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReliableUDPServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs.cs" />
   </ItemGroup>
 </Project>
