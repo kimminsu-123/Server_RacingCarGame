@@ -5,3 +5,10 @@
 /Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.csproj.CoreCompileInputs.cache
 /Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.exe
 /Users/gimminsu/Desktop/2.Chungkang/2-1/2.GameNetworkProgramming/lastTerm/Server_RacingCarGame/RacingGameOperationServer/obj/Debug/RacingGameOperationServer.pdb
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\obj\Debug\RacingGameOperationServer.csproj.AssemblyReference.cache
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\obj\Debug\RacingGameOperationServer.csproj.CoreCompileInputs.cache
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\obj\Debug\RacingGameOperationServer.exe
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\obj\Debug\RacingGameOperationServer.pdb
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\bin\Debug\RacingGameOperationServer.exe.config
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\bin\Debug\RacingGameOperationServer.exe
+D:\2.DotNet Projects\Universe\2-1\GameNetworking\RacingGameServers\RacingGameOperationServer\bin\Debug\RacingGameOperationServer.pdb
