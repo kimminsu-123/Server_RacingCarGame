@@ -1,5 +1,6 @@
-﻿public interface IPacket<out T>
+﻿public interface IPacket<T>
 {
+    T Data { get; set; }
     byte[] Serialize();
     T Deserialize(byte[] bytes);
 }

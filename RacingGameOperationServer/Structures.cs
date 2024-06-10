@@ -14,7 +14,7 @@ public class PacketInfo
 
 public struct PacketHeader
 {
-    public int PacketType;
+    public PacketType PacketType;
     public int PacketId;
 }
 
