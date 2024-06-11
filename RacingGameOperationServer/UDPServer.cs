@@ -96,8 +96,14 @@ public abstract class UDPServer
         PacketHeader header = default;
         byte[] received = new byte[e.BytesTransferred];
         Buffer.BlockCopy(e.Buffer, 0, received, 0, received.Length);
-        HeaderSerializer.Deserialize(received, ref header);
+        bool ret = HeaderSerializer.Deserialize(received, ref header);
 
+        if (!ret)
+        {
+            Console.WriteLine("Failed Packet Header Deserialize");
+            return;
+        }
+        
         int headerSize = Marshal.SizeOf(typeof(PacketHeader));
         byte[] packetData = new byte[received.Length - headerSize];
         Buffer.BlockCopy(received, headerSize, packetData, 0, packetData.Length);
@@ -126,7 +132,13 @@ public abstract class UDPServer
 
             if (packetInfo == null) continue;
             
-            HeaderSerializer.Serialize(packetInfo.Header);
+            bool ret = HeaderSerializer.Serialize(packetInfo.Header);
+            if (!ret)
+            {
+                Console.WriteLine("Failed Packet Header Serialize");
+                return;
+            }
+            
             byte[] headerBytes = HeaderSerializer.GetBuffer();
             EndPoint clientEndPoint = packetInfo.ClientEndPoint;
 
@@ -183,14 +195,13 @@ public class OperationServer : UDPServer
         OnStart += StartPingToClient;
         OnReceived += OnReceivePacket;
     }
-
+    
     private void StartPingToClient()
     {
         Thread pingThread = new Thread(PingToClient);
         pingThread.IsBackground = true;
         pingThread.Start();
     }
-    
     private void PingToClient()
     {
         while (IsRunning)
@@ -231,9 +242,64 @@ public class OperationServer : UDPServer
     
     private void OnReceivePacket(PacketInfo packetInfo)
     {
-        Console.WriteLine(packetInfo.Header.PacketType);
-        Console.WriteLine(packetInfo.Header.PacketId);
-        Console.WriteLine(packetInfo.Buffer.Length);
-        Console.WriteLine(Encoding.UTF8.GetString(packetInfo.Buffer));
+        Console.WriteLine($@"
+======================
+   [Receive Packet]
+PacketType : {packetInfo.Header.PacketType}
+PacketID : {packetInfo.Header.PacketId}
+BufferLength : {packetInfo.Buffer.Length}
+======================
+");
+        
+        switch (packetInfo.Header.PacketType)
+        {
+            case PacketType.Connect:
+                HandleConnect(packetInfo);
+                break;
+            case PacketType.Disconnect:
+                HandleDisconnect(packetInfo);
+                break;
+            case PacketType.SyncTransform:
+                HandleSyncTransform(packetInfo);
+                break;
+            case PacketType.GoalLine:
+                HandleGoalLine(packetInfo);
+                break;
+        }
+    }
+
+    private void HandleConnect(PacketInfo packetInfo)
+    {
+        ClientInfo clientInfo = new ClientInfo();
+        clientInfo.ClientEndPoint = packetInfo.ClientEndPoint;
+
+        ConnectionPacket connection = new ConnectionPacket(packetInfo.Buffer);
+        string playerId = connection.GetData().PlayerId;
+
+        // 세션 매니저에 정보 전달하기
+        // 세션 매니저에서 정보를 받으면 현재 세션을 생성하거나 플레이어를 업데이트 하는 용도로 사용
+        
+        _clientInfos.TryAdd(playerId, clientInfo);
+    }
+    
+    private void HandleDisconnect(PacketInfo packetInfo)
+    {
+        ConnectionPacket connection = new ConnectionPacket(packetInfo.Buffer);
+        string playerId = connection.GetData().PlayerId;
+
+        // 세션 매니저에 정보 전달하기
+        // 세션 매니저에서 정보를 받으면 현재 세션을 지우거나 플레이어를 업데이트 하는 용도로 사용
+        
+        _clientInfos.TryRemove(playerId, out _);
+    }
+    
+    private void HandleSyncTransform(PacketInfo packetInfo)
+    {
+        
+    }
+    
+    private void HandleGoalLine(PacketInfo packetInfo)
+    {
+        
     }
 }

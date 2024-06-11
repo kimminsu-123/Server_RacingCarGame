@@ -1,8 +1,7 @@
 ﻿public interface IPacket<T>
 {
-    T Data { get; set; }
-    byte[] Serialize();
-    T Deserialize(byte[] bytes);
+    byte[] GetBytes();
+    T GetData();
 }
 
 public interface ICompress

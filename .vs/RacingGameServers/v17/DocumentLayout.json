@@ -1,0 +1,96 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|d:\\2.dotnet projects\\universe\\2-1\\gamenetworking\\racinggameservers\\racinggameoperationserver\\udpserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|solutionrelative:racinggameoperationserver\\udpserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|d:\\2.dotnet projects\\universe\\2-1\\gamenetworking\\racinggameservers\\racinggameoperationserver\\structures.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|solutionrelative:racinggameoperationserver\\structures.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|d:\\2.dotnet projects\\universe\\2-1\\gamenetworking\\racinggameservers\\racinggameoperationserver\\serializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|solutionrelative:racinggameoperationserver\\serializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|d:\\2.dotnet projects\\universe\\2-1\\gamenetworking\\racinggameservers\\racinggameoperationserver\\interfaces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35925550-1A4D-420E-AA53-E6F9D2A32A98}|RacingGameOperationServer\\RacingGameOperationServer.csproj|solutionrelative:racinggameoperationserver\\interfaces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UDPServer.cs",
+              "DocumentMoniker": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\UDPServer.cs",
+              "RelativeDocumentMoniker": "RacingGameOperationServer\\UDPServer.cs",
+              "ToolTip": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\UDPServer.cs",
+              "RelativeToolTip": "RacingGameOperationServer\\UDPServer.cs",
+              "ViewState": "AQIAAJcAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-11T14:05:38.919Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Structures.cs",
+              "DocumentMoniker": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\Structures.cs",
+              "RelativeDocumentMoniker": "RacingGameOperationServer\\Structures.cs",
+              "ToolTip": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\Structures.cs",
+              "RelativeToolTip": "RacingGameOperationServer\\Structures.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-11T14:05:37.937Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Serializer.cs",
+              "DocumentMoniker": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\Serializer.cs",
+              "RelativeDocumentMoniker": "RacingGameOperationServer\\Serializer.cs",
+              "ToolTip": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\Serializer.cs",
+              "RelativeToolTip": "RacingGameOperationServer\\Serializer.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-11T14:05:36.43Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Interfaces.cs",
+              "DocumentMoniker": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\Interfaces.cs",
+              "RelativeDocumentMoniker": "RacingGameOperationServer\\Interfaces.cs",
+              "ToolTip": "D:\\2.DotNet Projects\\Universe\\2-1\\GameNetworking\\RacingGameServers\\RacingGameOperationServer\\Interfaces.cs",
+              "RelativeToolTip": "RacingGameOperationServer\\Interfaces.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-11T14:05:35.085Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

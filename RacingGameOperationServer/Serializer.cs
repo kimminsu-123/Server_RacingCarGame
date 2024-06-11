@@ -80,9 +80,13 @@ public class Serializer
         return WriteBuffer(bytes, sizeof(char));
     }
 
-    public bool Serialize(string value)
+    public bool Serialize(string value, int length)
     {
-        byte[] bytes = Encoding.UTF8.GetBytes(value);
+        byte[] bytes = new byte[length]; 
+            
+        byte[] buffer = Encoding.UTF8.GetBytes(value);
+        int size = Math.Min(buffer.Length, bytes.Length);
+        Buffer.BlockCopy(buffer, 0, bytes, 0, size);
         
         if (IsLittleEndian)
         {
@@ -180,6 +184,7 @@ public class Serializer
                 Array.Reverse(data);	
             }
             ret = Encoding.UTF8.GetString(data);
+            ret = ret.Trim('\0');
         }
 
         return success;
