@@ -7,8 +7,8 @@ public class ClientInfo
 
 public class PacketInfo
 {
+    public PacketHeader Header;
     public byte[] Buffer;
-    public int Size;
     public EndPoint ClientEndPoint;
 }
 

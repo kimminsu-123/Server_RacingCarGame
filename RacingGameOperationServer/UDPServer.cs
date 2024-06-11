@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 public abstract class UDPServer
@@ -16,12 +19,14 @@ public abstract class UDPServer
     protected volatile IPEndPoint ServerIpEndPoint;
     protected volatile bool IsRunning;
 
-    protected const int ReceiveIntervalMs = 100;
-    protected const int SendIntervalMs = 100;
+    protected const int RECEIVE_INTERVAL_MS = 100;
+    protected const int SEND_INTERVAL_MS = 100;
 
     protected Action OnStart;
     protected Action<PacketInfo> OnReceived;
     protected Action<SocketAsyncEventArgs> OnSent;
+
+    protected readonly PacketHeaderSerializer HeaderSerializer = new PacketHeaderSerializer();
 
     private readonly ConcurrentQueue<PacketInfo> _sendQueue = new ConcurrentQueue<PacketInfo>();
 
@@ -56,6 +61,8 @@ public abstract class UDPServer
                 receiveThread.Start();
                 sendThread.Start();
             }
+            
+            OnStart?.Invoke();
         }
         catch (Exception err)
         {
@@ -69,7 +76,7 @@ public abstract class UDPServer
         
         try
         {
-            Thread.Sleep(ReceiveIntervalMs);
+            Thread.Sleep(RECEIVE_INTERVAL_MS);
             
             SocketAsyncEventArgs receiveArgs = new SocketAsyncEventArgs();
             receiveArgs.SetBuffer(new byte[BufferSize], 0, BufferSize);
@@ -86,10 +93,19 @@ public abstract class UDPServer
 
     private void ReceiveCompleted(object sender, SocketAsyncEventArgs e)
     {
+        PacketHeader header = default;
+        byte[] received = new byte[e.BytesTransferred];
+        Buffer.BlockCopy(e.Buffer, 0, received, 0, received.Length);
+        HeaderSerializer.Deserialize(received, ref header);
+
+        int headerSize = Marshal.SizeOf(typeof(PacketHeader));
+        byte[] packetData = new byte[received.Length - headerSize];
+        Buffer.BlockCopy(received, headerSize, packetData, 0, packetData.Length);
+        
         PacketInfo packetInfo = new PacketInfo
         {
-            Buffer = e.Buffer,
-            Size = e.BytesTransferred,
+            Header = header,
+            Buffer = packetData,
             ClientEndPoint = e.RemoteEndPoint
         };
         
@@ -102,16 +118,22 @@ public abstract class UDPServer
     {
         while (IsRunning)
         {
-            Thread.Sleep(SendIntervalMs);
+            Thread.Sleep(SEND_INTERVAL_MS);
             
             if(_sendQueue.IsEmpty) continue;
             
             _sendQueue.TryDequeue(out PacketInfo packetInfo);
 
             if (packetInfo == null) continue;
-
-            byte[] sendBuffer = packetInfo.Buffer;
+            
+            HeaderSerializer.Serialize(packetInfo.Header);
+            byte[] headerBytes = HeaderSerializer.GetBuffer();
             EndPoint clientEndPoint = packetInfo.ClientEndPoint;
+
+            byte[] sendBuffer = new byte[headerBytes.Length + packetInfo.Buffer.Length];
+            int headerSize = Marshal.SizeOf(typeof(PacketHeader));
+            Buffer.BlockCopy(headerBytes, 0, sendBuffer, 0, headerSize);
+            Buffer.BlockCopy(packetInfo.Buffer, 0, sendBuffer, headerSize, packetInfo.Buffer.Length);
             
             try
             {
@@ -202,13 +224,16 @@ public class OperationServer : UDPServer
             }
             catch (Exception err)
             {
-                Console.WriteLine($"RUDP Ping Error : {err.Message}");
+                Console.WriteLine($"UDP Ping Error : {err.Message}");
             }
         }
     }
     
     private void OnReceivePacket(PacketInfo packetInfo)
     {
-        Console.WriteLine(packetInfo.Size);
+        Console.WriteLine(packetInfo.Header.PacketType);
+        Console.WriteLine(packetInfo.Header.PacketId);
+        Console.WriteLine(packetInfo.Buffer.Length);
+        Console.WriteLine(Encoding.UTF8.GetString(packetInfo.Buffer));
     }
 }
