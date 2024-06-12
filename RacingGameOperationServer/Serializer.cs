@@ -25,7 +25,7 @@ public class Serializer
     }
 
     public byte[] GetBuffer() => _buffer.ToArray();
-    
+
     public bool SetBuffer(byte[] buffer)
     {
         Clear();
@@ -82,12 +82,12 @@ public class Serializer
 
     public bool Serialize(string value, int length)
     {
-        byte[] bytes = new byte[length]; 
-            
+        byte[] bytes = new byte[length];
+
         byte[] buffer = Encoding.UTF8.GetBytes(value);
         int size = Math.Min(buffer.Length, bytes.Length);
         Buffer.BlockCopy(buffer, 0, bytes, 0, size);
-        
+
         if (IsLittleEndian)
         {
             Array.Reverse(bytes);
@@ -130,7 +130,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref int ret)
     {
         int size = sizeof(int);
@@ -144,7 +144,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref long ret)
     {
         int size = sizeof(long);
@@ -158,7 +158,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref char ret)
     {
         int size = sizeof(char);
@@ -172,7 +172,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref string ret, int length)
     {
         byte[] data = new byte[length];
@@ -180,8 +180,9 @@ public class Serializer
         bool success = ReadBuffer(ref data, data.Length);
         if (success)
         {
-            if (IsLittleEndian) {
-                Array.Reverse(data);	
+            if (IsLittleEndian)
+            {
+                Array.Reverse(data);
             }
             ret = Encoding.UTF8.GetString(data);
             ret = ret.Trim('\0');
@@ -189,7 +190,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref float ret)
     {
         int size = sizeof(float);
@@ -203,7 +204,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref double ret)
     {
         int size = sizeof(double);
@@ -217,7 +218,7 @@ public class Serializer
 
         return success;
     }
-    
+
     public bool Deserialize(ref bool ret)
     {
         int size = sizeof(bool);
@@ -231,7 +232,7 @@ public class Serializer
 
         return success;
     }
-    
+
     private bool ReadBuffer(ref byte[] bytes, int size)
     {
         try
@@ -280,12 +281,13 @@ public class PacketHeaderSerializer : Serializer
     public bool Serialize(PacketHeader header)
     {
         Clear();
-        
+
         bool ret = true;
 
+        ret &= Serialize((int)header.ResultType);
         ret &= Serialize((int)header.PacketType);
         ret &= Serialize(header.PacketId);
-        
+
         return ret;
     }
 
@@ -293,16 +295,19 @@ public class PacketHeaderSerializer : Serializer
     {
         bool ret = true;
 
+        int resultType = 0;
         int packetType = 0;
         int packetId = 0;
-        
+
         ret &= SetBuffer(bytes);
+        ret &= Deserialize(ref resultType);
         ret &= Deserialize(ref packetType);
         ret &= Deserialize(ref packetId);
 
-        header.PacketType = (PacketType) packetType;
+        header.ResultType = (ResultType)resultType;
+        header.PacketType = (PacketType)packetType;
         header.PacketId = packetId;
-        
+
         return ret;
     }
 }

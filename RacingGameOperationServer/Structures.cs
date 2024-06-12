@@ -2,6 +2,7 @@
 
 public class ClientInfo
 {
+    public string Id;
     public EndPoint ClientEndPoint;
 }
 
@@ -14,8 +15,15 @@ public enum PacketType
     GoalLine,
 }
 
+public enum ResultType
+{
+    Success,
+    Failed
+}
+
 public struct PacketHeader
 {
+    public ResultType ResultType;
     public PacketType PacketType;
     public int PacketId;
 }
@@ -73,6 +81,8 @@ public class ConnectionPacket : IPacket<ConnectionData>
     
     public ConnectionPacket(byte[] data)
     {
+        _connectionData = new ConnectionData();
+
         _serializer = new ConnectionDataSerializer();
         _serializer.Deserialize(data, ref _connectionData);
     }

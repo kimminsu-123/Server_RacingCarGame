@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 
 public abstract class UDPServer
@@ -18,6 +16,7 @@ public abstract class UDPServer
     protected volatile Socket UdpSocket;
     protected volatile IPEndPoint ServerIpEndPoint;
     protected volatile bool IsRunning;
+    protected volatile PacketHeaderSerializer HeaderSerializer;
 
     protected const int RECEIVE_INTERVAL_MS = 100;
     protected const int SEND_INTERVAL_MS = 100;
@@ -25,8 +24,6 @@ public abstract class UDPServer
     protected Action OnStart;
     protected Action<PacketInfo> OnReceived;
     protected Action<SocketAsyncEventArgs> OnSent;
-
-    protected readonly PacketHeaderSerializer HeaderSerializer = new PacketHeaderSerializer();
 
     private readonly ConcurrentQueue<PacketInfo> _sendQueue = new ConcurrentQueue<PacketInfo>();
 
@@ -38,6 +35,7 @@ public abstract class UDPServer
         UdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         ServerIpEndPoint = new IPEndPoint(IPAddress.Any, Port);
         IsRunning = false;
+        HeaderSerializer = new PacketHeaderSerializer();
     }
 
     public void Start()
@@ -187,11 +185,15 @@ public class OperationServer : UDPServer
 {
     private const int ConnectionTimeoutMs = 3000;
     private const int PingIntervalMs = 1000;
+
+    private SessionManager _sessionManager;
     
     private readonly ConcurrentDictionary<string, ClientInfo> _clientInfos = new ConcurrentDictionary<string, ClientInfo>();
     
     public OperationServer(int port, int bufferSize, int workerThreadCount) : base(port, bufferSize, workerThreadCount)
     {
+        _sessionManager = new SessionManager();
+
         OnStart += StartPingToClient;
         OnReceived += OnReceivePacket;
     }
@@ -201,7 +203,10 @@ public class OperationServer : UDPServer
         Thread pingThread = new Thread(PingToClient);
         pingThread.IsBackground = true;
         pingThread.Start();
+
+        Console.WriteLine($"* Boot Operation Server *");
     }
+
     private void PingToClient()
     {
         while (IsRunning)
@@ -270,27 +275,104 @@ BufferLength : {packetInfo.Buffer.Length}
 
     private void HandleConnect(PacketInfo packetInfo)
     {
-        ClientInfo clientInfo = new ClientInfo();
-        clientInfo.ClientEndPoint = packetInfo.ClientEndPoint;
+        string playerId = string.Empty;
+        string sessionId = string.Empty;
+        bool ret = true;
 
-        ConnectionPacket connection = new ConnectionPacket(packetInfo.Buffer);
-        string playerId = connection.GetData().PlayerId;
+        try
+        {
+            ConnectionPacket connection = new ConnectionPacket(packetInfo.Buffer);
+            playerId = connection.GetData().PlayerId;
+            sessionId = connection.GetData().SessionId;
 
-        // 세션 매니저에 정보 전달하기
-        // 세션 매니저에서 정보를 받으면 현재 세션을 생성하거나 플레이어를 업데이트 하는 용도로 사용
-        
-        _clientInfos.TryAdd(playerId, clientInfo);
+            if (_clientInfos.TryGetValue(playerId, out _))
+            {
+                Console.WriteLine($@"
+======================
+   [Failed Connect Client]
+SessionId : {sessionId}
+PlayerId : {playerId}
+Msg : already connected player
+======================
+");
+
+                return;
+            }
+
+            ClientInfo clientInfo = new ClientInfo();
+            clientInfo.Id = playerId;
+            clientInfo.ClientEndPoint = packetInfo.ClientEndPoint;
+
+            ret &= _sessionManager.AddPlayerInSession(sessionId, clientInfo);
+            ret &= _clientInfos.TryAdd(playerId, clientInfo);
+
+            packetInfo.Header.ResultType = ret ? ResultType.Success : ResultType.Failed;
+
+            Console.WriteLine($@"
+======================
+   [Complete Connected Client]
+SessionId : {sessionId}
+PlayerId : {playerId}
+======================
+");
+        }
+        catch (Exception err)
+        {
+            Console.WriteLine($@"
+======================
+   [Exception Connected Client]
+SessionId : {sessionId}
+PlayerId : {playerId}
+Error : {err.Message}
+======================
+");
+
+            packetInfo.Header.ResultType = ResultType.Failed;
+        }
+
+        EnqueueSendQueue(packetInfo);
     }
-    
+
     private void HandleDisconnect(PacketInfo packetInfo)
     {
-        ConnectionPacket connection = new ConnectionPacket(packetInfo.Buffer);
-        string playerId = connection.GetData().PlayerId;
+        string sessionId = string.Empty;
+        string playerId = string.Empty;
 
-        // 세션 매니저에 정보 전달하기
-        // 세션 매니저에서 정보를 받으면 현재 세션을 지우거나 플레이어를 업데이트 하는 용도로 사용
-        
-        _clientInfos.TryRemove(playerId, out _);
+        try
+        {
+            ConnectionPacket connection = new ConnectionPacket(packetInfo.Buffer);
+            sessionId = connection.GetData().SessionId;
+            playerId = connection.GetData().PlayerId;
+
+            bool ret = true;
+            ret &= _sessionManager.RemovePlayerInSession(sessionId, playerId);
+            ret &= _clientInfos.TryRemove(playerId, out _);
+
+            packetInfo.Header.ResultType = ret ? ResultType.Success : ResultType.Failed;
+
+            Console.WriteLine($@"
+======================
+   [Complete Disconnected Client]
+SessionId : {sessionId}
+PlayerId : {playerId}
+======================
+");
+        }
+        catch(Exception err)
+        {
+            Console.WriteLine($@"
+======================
+   [Exception Connected Client]
+SessionId : {sessionId}
+PlayerId : {playerId}
+Error : {err.Message}
+======================
+");
+
+            packetInfo.Header.ResultType = ResultType.Failed;
+        }
+
+        EnqueueSendQueue(packetInfo);
     }
     
     private void HandleSyncTransform(PacketInfo packetInfo)
