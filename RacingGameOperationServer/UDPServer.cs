@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -276,11 +278,17 @@ BufferLength : {packetInfo.Buffer.Length}");
             case PacketType.Disconnect:
                 HandleDisconnect(packetInfo);
                 break;
+            case PacketType.StartGame:
+                HandleStartGame(packetInfo);
+                break;
             case PacketType.SyncTransform:
                 HandleSyncTransform(packetInfo);
                 break;
             case PacketType.GoalLine:
                 HandleGoalLine(packetInfo);
+                break;
+            case PacketType.EndGame:
+                HandleEndGame(packetInfo);
                 break;
         }
     }
@@ -310,6 +318,7 @@ Msg : already connected player");
             ClientInfo clientInfo = new ClientInfo();
             clientInfo.Id = playerId;
             clientInfo.ClientEndPoint = packetInfo.ClientEndPoint;
+            clientInfo.CurrentStatus = Status.Connected;
 
             lock (_sessionManager)
             {
@@ -375,12 +384,63 @@ Error : {err.Message}");
 
         EnqueueSendQueue(packetInfo);
     }
+    
+    private void HandleStartGame(PacketInfo packetInfo)
+    {
+        string sessionId = string.Empty;
+        bool ret = true;
+        List<ClientInfo> clients = new List<ClientInfo>();
+
+        try
+        {
+            ConnectionPacket packet = new ConnectionPacket(packetInfo.Buffer);
+            ConnectionData data = packet.GetData();
+
+            sessionId = data.SessionId;
+            
+            lock (_sessionManager)
+            {
+                ret &= _sessionManager.UpdateStatusInSession(data.SessionId, data.PlayerId, Status.Playing);
+                ret &= _sessionManager.IsAllPlayerStatusInSession(data.SessionId, Status.Playing);
+                ret &= _sessionManager.GetPlayersInSession(data.SessionId, ref clients);
+            }
+
+            if (ret)
+            {
+                foreach (ClientInfo info in clients)
+                {
+                    PacketInfo startPacket = new PacketInfo();
+                    startPacket.Header.ResultType = ResultType.Success;
+                    startPacket.Header.PacketType = PacketType.StartGame;
+                    startPacket.Buffer = new byte[1];
+                    startPacket.ClientEndPoint = info.ClientEndPoint;
+                    EnqueueSendQueue(startPacket);
+                }
+            }
+            
+            Logger.LogInfo("Operation Server",
+$@"(Complete GameStart) : 
+SessionId : {sessionId}
+Clients : [{string.Join(", ", clients.Select(x => x.ClientEndPoint.ToString()))}]");
+        }
+        catch (Exception err)
+        {
+            Logger.LogError("Operation Server",
+$@"(Exception StartGame) : 
+SessionId : {sessionId}
+Error : {err.Message}");
+        }
+    }
 
     private void HandleSyncTransform(PacketInfo packetInfo)
     {
     }
 
     private void HandleGoalLine(PacketInfo packetInfo)
+    {
+    }
+    
+    private void HandleEndGame(PacketInfo packetInfo)
     {
     }
 }
