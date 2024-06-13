@@ -1,4 +1,40 @@
-﻿using System.Net;
+﻿using System;
+using System.Data;
+using System.Diagnostics;
+using System.Net;
+
+public static class Logger
+{
+    public static void LogInfo(string title, string contents)
+    {
+        LogCustom(title, contents, ConsoleColor.Green);
+    }
+
+    public static void LogWarning(string title, string contents)
+    {
+        LogCustom(title, contents, ConsoleColor.Yellow);
+    }
+
+    public static void LogError(string title, string contents)
+    {
+        LogCustom(title, contents, ConsoleColor.Red);
+    }
+
+    public static void LogCustom(string title, string contents,
+        ConsoleColor foregroundColor = ConsoleColor.White)
+    {
+        Console.ForegroundColor = foregroundColor;
+        Console.WriteLine($@"
+================================
+[{DateTime.Now}] 
+[{title}]
+--------------------------------
+{contents}
+================================
+");
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+}
 
 public class ClientInfo
 {
