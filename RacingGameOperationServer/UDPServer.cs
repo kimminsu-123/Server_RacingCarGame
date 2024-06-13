@@ -266,7 +266,6 @@ public class OperationServer : UDPServer
         Logger.LogInfo("Operation Server",
             $@"(Receive Packet) : 
 PacketType : {packetInfo.Header.PacketType}
-PacketID : {packetInfo.Header.PacketId}
 BufferLength : {packetInfo.Buffer.Length}");
 
         switch (packetInfo.Header.PacketType)

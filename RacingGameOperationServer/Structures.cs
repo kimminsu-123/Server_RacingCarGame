@@ -30,8 +30,7 @@ public static class Logger
 [{title}]
 --------------------------------
 {contents}
-================================
-");
+================================");
         Console.ForegroundColor = ConsoleColor.White;
     }
 }
@@ -61,7 +60,6 @@ public struct PacketHeader
 {
     public ResultType ResultType;
     public PacketType PacketType;
-    public int PacketId;
 }
 
 public class PacketInfo

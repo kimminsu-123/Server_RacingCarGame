@@ -286,7 +286,6 @@ public class PacketHeaderSerializer : Serializer
 
         ret &= Serialize((int)header.ResultType);
         ret &= Serialize((int)header.PacketType);
-        ret &= Serialize(header.PacketId);
 
         return ret;
     }
@@ -297,16 +296,13 @@ public class PacketHeaderSerializer : Serializer
 
         int resultType = 0;
         int packetType = 0;
-        int packetId = 0;
 
         ret &= SetBuffer(bytes);
         ret &= Deserialize(ref resultType);
         ret &= Deserialize(ref packetType);
-        ret &= Deserialize(ref packetId);
 
         header.ResultType = (ResultType)resultType;
         header.PacketType = (PacketType)packetType;
-        header.PacketId = packetId;
 
         return ret;
     }
