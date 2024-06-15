@@ -52,6 +52,30 @@ public class SessionManager
         return ret;
     }
 
+    public bool UpdateGoalTick(string sessionName, string playerId, long tick)
+    {
+        bool ret = true;
+        ret &= sessions.TryGetValue(sessionName, out List<ClientInfo> clients);
+        try
+        {
+            if (ret)
+            {
+                ClientInfo info = clients.FirstOrDefault(client => client.Id.Equals(playerId));
+                ret &= info != null;
+                if (ret)
+                {
+                    info.GoalTick = tick;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            ret = false;
+        }
+
+        return ret;
+    }
+
     public bool GetPlayerInSession(string sessionName, string playerId, ref ClientInfo info)
     {
         bool ret = true;

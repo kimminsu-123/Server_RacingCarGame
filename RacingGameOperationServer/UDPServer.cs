@@ -400,9 +400,9 @@ Error : {err.Message}");
             
             lock (_sessionManager)
             {
-                ret &= _sessionManager.UpdateStatusInSession(data.SessionId, data.PlayerId, Status.Playing);
-                ret &= _sessionManager.IsAllPlayerStatusInSession(data.SessionId, Status.Playing);
-                ret &= _sessionManager.GetPlayersInSession(data.SessionId, ref clients);
+                ret &= _sessionManager.UpdateStatusInSession(sessionId, data.PlayerId, Status.Playing);
+                ret &= _sessionManager.IsAllPlayerStatusInSession(sessionId, Status.Playing);
+                ret &= _sessionManager.GetPlayersInSession(sessionId, ref clients);
             }
 
             if (ret)
@@ -454,7 +454,7 @@ Error : {err.Message}");
             
             lock (_sessionManager)
             {
-                ret &= _sessionManager.GetPlayersInSession(data.SessionId, ref clients);
+                ret &= _sessionManager.GetPlayersInSession(sessionId, ref clients);
             }
 
             if (ret)
@@ -492,16 +492,131 @@ Clients : [{string.Join(", ", clients.Select(x => x.ClientEndPoint.ToString()))}
                 $@"(Exception Sync Transform) : 
 SessionId : {sessionId}
 PlayerId : {playerId}
-Error : {err.Message}
-StackTrace : {err.StackTrace}");
+Error : {err.Message}");
         }
     }
 
     private void HandleGoalLine(PacketInfo packetInfo)
     {
+        string sessionId = string.Empty;
+        string playerId = string.Empty;
+        bool ret = true;
+        List<ClientInfo> clients = new List<ClientInfo>();
+
+        try
+        {
+            GoalPacket packet = new GoalPacket(packetInfo.Buffer);
+            GoalData data = packet.GetData();
+
+            sessionId = data.SessionId;
+            playerId = data.PlayerId;
+            
+            lock (_sessionManager)
+            {
+                ret &= _sessionManager.UpdateStatusInSession(sessionId, playerId, Status.Goal);
+                ret &= _sessionManager.UpdateGoalTick(sessionId, playerId, data.Tick);
+                ret &= _sessionManager.GetPlayersInSession(sessionId, ref clients);
+            }
+
+            if (ret)
+            {
+                if (clients == null || clients.Count <= 0)
+                {
+                    return;
+                }
+                
+                foreach (ClientInfo info in clients)
+                {
+                    PacketInfo startPacket = new PacketInfo();
+                    startPacket.Header.ResultType = ResultType.Success;
+                    startPacket.Header.PacketType = PacketType.GoalLine;
+                    startPacket.Buffer = packetInfo.Buffer;
+                    startPacket.ClientEndPoint = info.ClientEndPoint;
+                    EnqueueSendQueue(startPacket);
+                }
+            }
+            
+            Logger.LogInfo("Operation Server",
+                $@"(Complete Goal Line) : 
+SessionId : {sessionId}
+PlayerId : {playerId}
+Clients : [{string.Join(", ", clients.Select(x => x.ClientEndPoint.ToString()))}]");
+        }
+        catch (Exception err)
+        {
+            Logger.LogError("Operation Server",
+                $@"(Exception Goal Line) : 
+SessionId : {sessionId}
+PlayerId : {playerId}
+Error : {err.Message}");
+        }
     }
     
     private void HandleEndGame(PacketInfo packetInfo)
     {
+        string sessionId = string.Empty;
+        string playerId = string.Empty;
+        bool ret = true;
+        List<ClientInfo> clients = new List<ClientInfo>();
+
+        try
+        {
+            ConnectionPacket packet = new ConnectionPacket(packetInfo.Buffer);
+            ConnectionData data = packet.GetData();
+
+            sessionId = data.SessionId;
+            playerId = data.PlayerId;
+            
+            lock (_sessionManager)
+            {
+                ret &= _sessionManager.UpdateStatusInSession(sessionId, playerId, Status.EndPlay);
+                ret &= _sessionManager.GetPlayersInSession(sessionId, ref clients);
+            }
+
+            if (ret)
+            {
+                if (clients == null || clients.Count <= 0)
+                {
+                    return;
+                }
+
+                if (clients.All(x => x.CurrentStatus == Status.EndPlay))
+                {
+                    var winnerId = clients
+                                            .OrderBy(x => x.GoalTick)
+                                            .ToArray()[0].Id;
+                    
+                    ConnectionData winner = new ConnectionData();
+                    winner.SessionId = sessionId;
+                    winner.PlayerId = winnerId;
+
+                    ConnectionPacket winnerPacket = new ConnectionPacket(winner);
+                    
+                    foreach (ClientInfo info in clients)
+                    {
+                        PacketInfo startPacket = new PacketInfo();
+                        startPacket.Header.ResultType = ResultType.Success;
+                        startPacket.Header.PacketType = PacketType.EndGame;
+                        startPacket.Buffer = winnerPacket.GetBytes();
+                        startPacket.ClientEndPoint = info.ClientEndPoint;
+                        EnqueueSendQueue(startPacket);
+                    }    
+                }
+            }
+            
+            Logger.LogInfo("Operation Server",
+                $@"(Complete End Game) : 
+SessionId : {sessionId}
+PlayerId : {playerId}
+Clients : [{string.Join(", ", clients.Select(x => x.ClientEndPoint.ToString()))}]");
+        }
+        catch (Exception err)
+        {
+            Logger.LogError("Operation Server",
+                $@"(Exception End Game) : 
+SessionId : {sessionId}
+PlayerId : {playerId}
+Error : {err.Message}");
+        }
     }
 }
