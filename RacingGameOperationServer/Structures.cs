@@ -64,7 +64,7 @@ public class ClientInfo
     public string Id;
     public EndPoint ClientEndPoint;
     public Status CurrentStatus;
-    public long GoalTick;
+    public long GoalTick = long.MaxValue;
 }
 
 public enum PacketType
