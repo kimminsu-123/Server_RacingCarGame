@@ -409,6 +409,11 @@ Error : {err.Message}");
             {
                 foreach (ClientInfo info in clients)
                 {
+                    if (info == null)
+                    {
+                        continue;
+                    }
+                    
                     PacketInfo startPacket = new PacketInfo();
                     startPacket.Header.ResultType = ResultType.Success;
                     startPacket.Header.PacketType = PacketType.StartGame;
@@ -434,6 +439,62 @@ Error : {err.Message}");
 
     private void HandleSyncTransform(PacketInfo packetInfo)
     {
+        string sessionId = string.Empty;
+        string playerId = string.Empty;
+        bool ret = true;
+        List<ClientInfo> clients = new List<ClientInfo>();
+
+        try
+        {
+            TransformPacket packet = new TransformPacket(packetInfo.Buffer);
+            TransformData data = packet.GetData();
+
+            sessionId = data.SessionId;
+            playerId = data.PlayerId;
+            
+            lock (_sessionManager)
+            {
+                ret &= _sessionManager.GetPlayersInSession(data.SessionId, ref clients);
+            }
+
+            if (ret)
+            {
+                if (clients == null || clients.Count <= 0)
+                {
+                    return;
+                }
+                
+                foreach (ClientInfo info in clients)
+                {
+                    if (info == null || info.Id.Equals(playerId))
+                    {
+                        continue;
+                    }
+                    
+                    PacketInfo startPacket = new PacketInfo();
+                    startPacket.Header.ResultType = ResultType.Success;
+                    startPacket.Header.PacketType = PacketType.SyncTransform;
+                    startPacket.Buffer = packetInfo.Buffer;
+                    startPacket.ClientEndPoint = info.ClientEndPoint;
+                    EnqueueSendQueue(startPacket);
+                }
+            }
+            
+            Logger.LogInfo("Operation Server",
+                $@"(Complete Sync Transform) : 
+SessionId : {sessionId}
+PlayerId : {playerId}
+Clients : [{string.Join(", ", clients.Select(x => x.ClientEndPoint.ToString()))}]");
+        }
+        catch (Exception err)
+        {
+            Logger.LogError("Operation Server",
+                $@"(Exception Sync Transform) : 
+SessionId : {sessionId}
+PlayerId : {playerId}
+Error : {err.Message}
+StackTrace : {err.StackTrace}");
+        }
     }
 
     private void HandleGoalLine(PacketInfo packetInfo)
